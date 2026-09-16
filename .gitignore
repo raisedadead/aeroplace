@@ -1,0 +1,7 @@
+!AGENTS.md
+!CLAUDE.md
+
+.build/
+.swiftpm/
+.DS_Store
+.scratchpad/
