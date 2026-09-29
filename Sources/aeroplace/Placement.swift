@@ -47,4 +47,15 @@ enum Screen {
         guard let chosen else { return nil }
         return (chosen, primary.frame.height)
     }
+
+    static func visibleFrame(index: Int) -> CGRect? {
+        guard let (screen, primaryHeight) = resolve(index: index) else { return nil }
+        let visible = screen.visibleFrame
+        return CGRect(
+            x: visible.origin.x,
+            y: primaryHeight - (visible.origin.y + visible.height),
+            width: visible.width,
+            height: visible.height
+        )
+    }
 }

@@ -16,6 +16,7 @@ enum LuaHost {
         luaL_openselectedlibs(state, ~0, 0)
         setPackagePath(state, directory: directory)
         setArg(state, executable: executable, arguments: arguments)
+        Primitives.register(state, executable: executable)
         guard luaL_loadfilex(state, directory + "/main.lua", nil) == LUA_OK else {
             return failure(errorMessage(state))
         }

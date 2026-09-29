@@ -39,16 +39,18 @@ struct AXWindow {
         return size
     }
 
-    func setPosition(_ point: CGPoint) {
+    @discardableResult
+    func setPosition(_ point: CGPoint) -> Bool {
         var point = point
-        guard let value = AXValueCreate(.cgPoint, &point) else { return }
-        AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, value)
+        guard let value = AXValueCreate(.cgPoint, &point) else { return false }
+        return AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, value) == .success
     }
 
-    func setSize(_ size: CGSize) {
+    @discardableResult
+    func setSize(_ size: CGSize) -> Bool {
         var size = size
-        guard let value = AXValueCreate(.cgSize, &size) else { return }
-        AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, value)
+        guard let value = AXValueCreate(.cgSize, &size) else { return false }
+        return AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, value) == .success
     }
 
     private func axValue(_ attribute: String) -> AXValue? {
