@@ -16,13 +16,13 @@ Places windows for AeroSpace on macOS. A Swift host gives Lua scripts the `aeros
 - `lua/placement.lua` — the usable area and the size ladder
 - `lua/layout.lua` — the `layout` plan
 - `test/host.sh` — host and CLI checks; `test/main.lua` — Lua suites. `primitives_test` calls the real primitives; the other suites stub them
-- `test/bin/aerospace` — a fake `aerospace` that `make check` puts first on `PATH`. The checks need no AeroSpace install
-- `.github/workflows/check.yml` — `make check` on macOS for each push to `main` and each pull request
+- `test/bin/aerospace` — a fake `aerospace` that `just check` puts first on `PATH`. The checks need no AeroSpace install
+- `.github/workflows/check.yml` — `just check` on macOS for each push to `main` and each pull request
 
 ## Rules
 
 - Never run `center`, `cycle` or `layout` to test a change. They act on the operator's windows. Use `stages`, which touches no window.
-- `make check` and `AEROPLACE_LUA=lua .build/release/aeroplace stages` are the validators. Compare the ladder with the table in README.md.
+- `just check` and `AEROPLACE_LUA=lua .build/release/aeroplace stages` are the validators. Compare the ladder with the table in README.md.
 - Put logic in Lua and primitives in Swift. Add a primitive only for an API that Lua cannot reach.
 - A primitive returns `nil, message` on failure. It never raises a Lua error: Lua raises with `_longjmp`, which skips Swift cleanup. Keep `luaL_check*`, `luaL_error` and `lua_error` out of `Sources/aeroplace`.
 - Replace `Sources/CLua` only from a Lua release tarball. Check the tarball SHA-256 against the lua.org download page. Copy `src/` without `lua.c`, `luac.c`, `lua.hpp` and the `Makefile`, and put `lua.h`, `luaconf.h`, `lualib.h` and `lauxlib.h` in `include/`.
@@ -58,7 +58,7 @@ The links point to AeroSpace commit `d56e163` (0.21.3-Beta). After an AeroSpace 
 aeroplace uses semantic versions. Homebrew builds it from a git tag.
 
 1. Set `version` in `lua/main.lua` and the expected `--version` output in `test/host.sh`.
-1. Run `make check`.
+1. Run `just check`.
 1. Commit as `chore(release): <version>` on `main`.
 1. Add an annotated tag: `git tag -a v<version> -m 'aeroplace <version>'`.
 1. The operator pushes `main` and the tag. Push the tag before the formula changes.

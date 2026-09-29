@@ -51,12 +51,12 @@ With Homebrew, which builds aeroplace from source:
 brew install raisedadead/tap/aeroplace
 ```
 
-From a clone, with Swift 6 or later:
+From a clone, with Swift 6 or later and [just](https://github.com/casey/just):
 
 ```sh
-make install          # binary to ~/.local/bin, scripts to ~/.local/share/aeroplace
-make install PREFIX=/usr/local
-make check            # host checks, Lua tests, and the ladder
+just install            # binary to ~/.local/bin, scripts to ~/.local/share/aeroplace
+just install /usr/local
+just check              # host checks, Lua tests, and the ladder
 ```
 
 ### Accessibility permission
@@ -65,7 +65,7 @@ make check            # host checks, Lua tests, and the ladder
 
 ## Use from AeroSpace
 
-Give an absolute path. AeroSpace starts from the GUI and does not read your shell profile. Use `/opt/homebrew/bin/aeroplace` for Homebrew on Apple silicon, `/usr/local/bin/aeroplace` for Homebrew on Intel, or the full path of `~/.local/bin/aeroplace` for `make install`.
+Give an absolute path. AeroSpace starts from the GUI and does not read your shell profile. Use `/opt/homebrew/bin/aeroplace` for Homebrew on Apple silicon, `/usr/local/bin/aeroplace` for Homebrew on Intel, or the full path of `~/.local/bin/aeroplace` for `just install`.
 
 ```toml
 ctrl-alt-c = ['layout floating', 'exec-and-forget /opt/homebrew/bin/aeroplace center']
