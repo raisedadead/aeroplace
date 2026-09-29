@@ -1,6 +1,6 @@
 local verbs = require('verbs')
 
-local version = '0.1.0'
+local version = '0.1.1'
 local usage = 'usage: aeroplace <center|cycle|stages|layout [workspace]|--version|--help>\n'
 
 local verb, first, second, third = ...

@@ -53,7 +53,7 @@ report aerospace-from-path $? 0 "$output" 'version fake'
 
 scripts="$(dirname "$0")/../lua"
 output=$(AEROPLACE_LUA="$scripts" "$binary" --version 2>/dev/null)
-report version $? 0 "$output" 'aeroplace 0.1.0'
+report version $? 0 "$output" 'aeroplace 0.1.1'
 output=$(AEROPLACE_LUA="$scripts" "$binary" --help 2>/dev/null)
 report help $? 0 "$output" 'usage: aeroplace'
 output=$(AEROPLACE_LUA="$scripts" "$binary" unknown 2>&1 >/dev/null)
