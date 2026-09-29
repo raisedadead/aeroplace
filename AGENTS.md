@@ -4,29 +4,39 @@ Places floating windows for AeroSpace on macOS with the Accessibility API, becau
 
 ## Layout
 
-- `Sources/aeroplace/main.swift` — verbs and the top-level flow
-- `Sources/aeroplace/AeroSpace.swift` — window lookup and the `outer.bottom` read
-- `Sources/aeroplace/Placement.swift` — the usable area and the size ladder
+- `Sources/aeroplace/LuaHost.swift` — boots Lua, finds the scripts, runs `main.lua`, maps its result to the exit code
+- `Sources/aeroplace/Primitives.swift` — the global `aeroplace` table that the scripts call
 - `Sources/aeroplace/Window.swift` — Accessibility reads and writes
+- `Sources/aeroplace/Screen.swift` — display frames, top-left origin
+- `Sources/CLua/` — Lua 5.5.1 from lua.org, unchanged
+- `lua/main.lua` — verb dispatch and usage
+- `lua/verbs.lua` — `center`, `cycle`, `stages`, `layout`
+- `lua/aerospace.lua` — window lookup and the `outer.bottom` read
+- `lua/placement.lua` — the usable area and the size ladder
+- `lua/layout.lua` — the `layout` plan
+- `test/host.sh` — host checks; `test/main.lua` — Lua suites with stubbed primitives
 
 ## Rules
 
-- Never run `center` or `cycle` to test a change. Both act on the operator's focused window. Use `stages`, which touches no window.
-- `swift build -c release` and `aeroplace stages` are the validators. Compare the ladder with the table in README.md.
+- Never run `center`, `cycle` or `layout` to test a change. They act on the operator's windows. Use `stages`, which touches no window.
+- `make check` and `AEROPLACE_LUA=lua .build/release/aeroplace stages` are the validators. Compare the ladder with the table in README.md.
+- Put logic in Lua and primitives in Swift. Add a primitive only for an API that Lua cannot reach.
+- A primitive returns `nil, message` on failure. It never raises a Lua error: Lua raises with `_longjmp`, which skips Swift cleanup. Keep `luaL_check*`, `luaL_error` and `lua_error` out of `Sources/aeroplace`.
+- Replace `Sources/CLua` only with a whole Lua release from lua.org. Check its SHA-256 against the lua.org download page.
 - Keep the Accessibility path free of Apple Events. System Events costs about 65 ms per call; a direct Accessibility call costs about 0.6 ms.
-- AppKit reports the visible frame from the bottom left of the primary display. The Accessibility API measures from the top left. `UsableArea` flips Y once.
+- AppKit reports the visible frame from the bottom left of the primary display. The Accessibility API measures from the top left. `Screen.visibleFrame` flips Y once.
 - Do not add a dependency for the `outer.bottom` read. A line match is enough.
 
 ## AeroSpace gaps
 
-Send each window task to the `aerospace` CLI first. AeroSpace cannot do the tasks in the list below, so aeroplace does them with the Accessibility API. Add a verb to aeroplace only for a task in this list.
+Send each window task to the `aerospace` CLI first. Write a Lua verb when a task needs logic over several `aerospace` commands, as `layout` does. AeroSpace cannot do the tasks in the list below, so aeroplace does them with the Accessibility primitives. Use those primitives only for a task in this list.
 
-- **Position a floating window.** `move` fails on a floating window ([MoveCommand:39][move-floating]), and no command sets a position. Write the position with `AXWindow.setPosition`, as `center` does.
-- **Resize a floating window.** `resize` fails on a floating window ([ResizeCommand:37][resize], [issue #9][issue-9]). Write the size with `AXWindow.setSize`, read back the size that the application accepted, then centre for that size, as `cycle` does.
+- **Position a floating window.** `move` fails on a floating window ([MoveCommand:39][move-floating]), and no command sets a position. Write the position with `aeroplace.set_position`, as `center` does.
+- **Resize a floating window.** `resize` fails on a floating window ([ResizeCommand:37][resize], [issue #9][issue-9]). Write the size with `aeroplace.set_size`, read back the size that the application accepted, then centre for that size, as `cycle` does.
 - **Place a window that becomes floating.** `layout floating` restores the last floating size and keeps the current position ([LayoutCommand:79][layout-floating]). Put `exec-and-forget <path>/aeroplace center` after `layout floating` in the same binding or rule.
-- **Keep a floating window clear of a bar.** Gaps apply to tiled windows only. AeroSpace moves a floating window only when the monitor under it shows another workspace, and sizes it only for `fullscreen` ([layoutRecursive:72][floating-layout]). Subtract `outer.bottom` from the visible frame, as `UsableArea` does.
-- **Read a frame.** `list-windows` and `list-monitors` print no position or size ([format variables][format-vars]). Read a window frame with `AXWindow` and a display frame with `NSScreen`. Select the display with `%{monitor-appkit-nsscreen-screens-id}`.
-- **Find the Accessibility window.** AeroSpace prints `%{window-id}` but no Accessibility element. Match the element on `%{app-pid}` and `%{window-title}`, as `AXWindow.match` does.
+- **Keep a floating window clear of a bar.** Gaps apply to tiled windows only. AeroSpace moves a floating window only when the monitor under it shows another workspace, and sizes it only for `fullscreen` ([layoutRecursive:72][floating-layout]). Subtract `outer.bottom` from the visible frame, as `placement.usable` does.
+- **Read a frame.** `list-windows` and `list-monitors` print no position or size ([format variables][format-vars]). Read a window size with `aeroplace.size` and a display frame with `aeroplace.screen`. Select the display with `%{monitor-appkit-nsscreen-screens-id}`.
+- **Find the Accessibility window.** AeroSpace prints `%{window-id}` but no Accessibility element. Match the element on `%{app-pid}` and `%{window-title}`, as `aeroplace.window` does.
 
 ### Accordion root
 

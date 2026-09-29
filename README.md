@@ -1,16 +1,21 @@
 # aeroplace
 
-Places the focused floating window for [AeroSpace](https://github.com/nikitabobko/AeroSpace) on macOS.
+Places windows for [AeroSpace](https://github.com/nikitabobko/AeroSpace) on macOS.
 
 AeroSpace does not position floating windows. Its `resize` command refuses them (upstream issue #9), and no command sets an absolute rect. `aeroplace` fills that gap with the macOS Accessibility API.
 
 ```sh
-aeroplace center   # centre the window, keep its size
-aeroplace cycle    # step to the next size, centred
-aeroplace stages   # print the size ladder, touch no window
+aeroplace center              # centre the window, keep its size
+aeroplace cycle               # step to the next size, centred
+aeroplace stages              # print the size ladder, touch no window
+aeroplace layout [workspace]  # focused window left, the others in one column
 ```
 
 `center` and `cycle` read the window from AeroSpace, then write the position and the size directly. `stages` needs no window and no Accessibility permission, so you can use it to check the ladder on any display.
+
+`layout` tiles every window on the workspace, the floating windows too. The focused window takes the left column. On another workspace, the first window takes it. The other windows share the right column. `layout` sends the whole plan to AeroSpace as one `aerospace eval`, so it needs no Accessibility permission. Two `layout` runs never overlap: each run holds `$XDG_STATE_HOME/aerospace/layout.lock`.
+
+The verbs are Lua scripts. The binary embeds Lua 5.5.1 and gives the scripts the AeroSpace CLI, the Accessibility API and the display frames. It reads the scripts from `../share/aeroplace`, relative to the binary. Set `AEROPLACE_LUA` to read them from another directory.
 
 ### The size ladder
 
@@ -29,7 +34,7 @@ On a 2560 by 1366 usable area:
 | 3     | 2113 × 1241 | 1.70   |
 | 4     | 2560 × 1366 | 1.87   |
 
-`AREA_STAGES`, `WIDTH_EXPONENT` and `HEIGHT_EXPONENT` in `Placement.swift` control the ladder.
+`stages`, `width_exponent` and `height_exponent` in `lua/placement.lua` control the ladder.
 
 ### Usable area
 
@@ -38,8 +43,9 @@ On a 2560 by 1366 usable area:
 ## Install
 
 ```sh
-make install          # builds release, installs to ~/.local/bin
+make install          # binary to ~/.local/bin, scripts to ~/.local/share/aeroplace
 make install PREFIX=/usr/local
+make check            # host checks, Lua tests, and the ladder
 ```
 
 Grant Accessibility permission to `aeroplace` in System Settings, under Privacy and Security. Without it, `center` and `cycle` exit 1 with a message.
@@ -51,6 +57,7 @@ Give an absolute path. AeroSpace starts from the GUI and does not read your shel
 ```toml
 ctrl-alt-c = ['layout floating', 'exec-and-forget /Users/you/.local/bin/aeroplace center']
 ctrl-alt-r = ['layout floating', 'exec-and-forget /Users/you/.local/bin/aeroplace cycle']
+ctrl-alt-w = 'exec-and-forget /Users/you/.local/bin/aeroplace layout'
 ```
 
 ## Why a binary
@@ -62,3 +69,7 @@ Direct Accessibility calls remove that overhead for reads, which cost about 0.6 
 That asymmetry sets the order. `cycle` writes the size first, reads back what the application accepted, then centres for the real size. The window therefore holds an intermediate shape for about 5 ms rather than about 18 ms, which is under one frame at 60 Hz instead of over one. Reading the accepted size also removes a third write, because an application that refuses a size is centred correctly the first time.
 
 macOS gives no window animation to a third-party tool, so this is one snap, not a transition.
+
+## Licence
+
+aeroplace is ISC. `Sources/CLua` is Lua 5.5.1 from [lua.org](https://www.lua.org), unchanged, under the MIT licence. Its notice is at the end of `Sources/CLua/include/lua.h`.
