@@ -13,7 +13,7 @@ func fail(_ message: String, _ code: Int32) -> Never {
 
 guard CommandLine.arguments.count == 2,
       let mode = Mode(rawValue: CommandLine.arguments[1])
-else { fail("usage: aeroplace <center|cycle|stages>", 2) }
+else { exit(LuaHost.run(arguments: Array(CommandLine.arguments.dropFirst()))) }
 
 func usableArea(screenIndex: Int) -> UsableArea {
     guard let resolved = Screen.resolve(index: screenIndex) else { fail("no screen", 1) }
