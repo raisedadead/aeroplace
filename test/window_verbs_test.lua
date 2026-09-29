@@ -52,6 +52,7 @@ local function run(verb, options)
 end
 
 local area = {x = -2560, y = 0, width = 2560, height = 1366}
+local screen_bottom = 1410
 
 local function clipping_desktop(width, height)
   local api = desktop({focused = '42'})
@@ -61,7 +62,7 @@ local function clipping_desktop(width, height)
   api.set_position = function(_, x, y) frame.x, frame.y = x, y end
   api.set_size = function(_, new_width, new_height)
     frame.width = math.min(new_width, area.x + area.width - frame.x)
-    frame.height = math.min(new_height, 1410 - frame.y)
+    frame.height = math.min(new_height, screen_bottom - frame.y)
   end
   return api, frame
 end
@@ -103,6 +104,16 @@ return {
       .. 'set_position handle -2087 141; set_size handle 1613 1084; size handle; '
       .. 'set_position handle -2080 141'
     assert(calls == expected, calls)
+  end},
+  {'cycle moves first when either side grows and resizes first when both shrink', function()
+    local cases = {
+      {{2500, 500}, 'set_position handle -2087 141; set_size handle 1613 1084; '},
+      {{2560, 1366}, 'set_size handle 1016 861; '},
+    }
+    for _, case in ipairs(cases) do
+      local _, calls = run('cycle', {focused = '42', sizes = {case[1]}})
+      assert(calls:find('screen 2; ' .. case[2] .. 'size handle', 1, true), calls)
+    end
   end},
   {'cycle keeps every step on the ladder when the screen edge clips a resize', function()
     local api, frame = clipping_desktop(1016, 861)
