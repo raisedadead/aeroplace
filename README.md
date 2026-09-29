@@ -13,7 +13,7 @@ aeroplace layout [workspace]  # focused window left, the others in one column
 
 `center` and `cycle` read the window from AeroSpace, then write the position and the size directly. `stages` needs no window and no Accessibility permission, so you can use it to check the ladder on any display.
 
-`layout` tiles every window on the workspace, the floating windows too. The focused window takes the left column. On another workspace, the first window takes it. The other windows share the right column. `layout` sends the whole plan to AeroSpace as one `aerospace eval`, so it needs no Accessibility permission. Two `layout` runs never overlap: each run holds `$XDG_STATE_HOME/aerospace/layout.lock`.
+`layout` tiles the tiled and floating windows on the workspace. The focused window takes the left column. On another workspace, the first window takes it. The other windows share the right column. `layout` sends the whole plan to AeroSpace as one `aerospace eval`, so it needs no Accessibility permission. Two `layout` runs never overlap: each run holds `$XDG_STATE_HOME/aerospace/layout.lock`.
 
 The verbs are Lua scripts. The binary embeds Lua 5.5.1 and gives the scripts the AeroSpace CLI, the Accessibility API and the display frames. It reads the scripts from `../share/aeroplace`, relative to the binary. Set `AEROPLACE_LUA` to read them from another directory.
 
@@ -72,4 +72,4 @@ macOS gives no window animation to a third-party tool, so this is one snap, not 
 
 ## Licence
 
-aeroplace is ISC. `Sources/CLua` is Lua 5.5.1 from [lua.org](https://www.lua.org), unchanged, under the MIT licence. Its notice is at the end of `Sources/CLua/include/lua.h`.
+aeroplace is ISC. `Sources/CLua` holds the Lua 5.5.1 library sources from [lua.org](https://www.lua.org), under the MIT licence. The files are unchanged; `lua.c`, `luac.c`, `lua.hpp` and the `Makefile` are left out. The notice is at the end of `Sources/CLua/include/lua.h`.

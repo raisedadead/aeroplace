@@ -2,7 +2,7 @@ local stub = require('stub')
 local verbs = require('verbs')
 
 local config = stub.file('outer.bottom = 44\n')
-local rows = '41|100|1|Other\n42|200|2|Title | with pipe'
+local rows = '41|100|1|Other|\n42|200|2|Title | with pipe |'
 
 local function desktop(options)
   options = options or {}
@@ -54,7 +54,9 @@ return {
   {'center moves the focused window to the centre of its screen', function()
     local result, calls = run('center', {focused = '42'})
     assert(result == 0)
-    assert(calls == 'window 200 Title | with pipe; size handle; screen 2; set_position handle -1780 283', calls)
+    local expected = 'window 200 Title | with pipe ; size handle; screen 2; '
+      .. 'set_position handle -1780 283'
+    assert(calls == expected, calls)
   end},
   {'center reads AEROSPACE_WINDOW_ID before asking AeroSpace', function()
     local getenv = os.getenv
@@ -81,7 +83,7 @@ return {
   end},
   {'cycle sets the next size, reads it back, then centres', function()
     local _, calls = run('cycle', {focused = '42', sizes = {{1000, 800}, {1600, 1084}}})
-    local expected = 'window 200 Title | with pipe; size handle; screen 2; '
+    local expected = 'window 200 Title | with pipe ; size handle; screen 2; '
       .. 'set_size handle 1613 1084; size handle; set_position handle -2080 141'
     assert(calls == expected, calls)
   end},

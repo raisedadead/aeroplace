@@ -1,20 +1,21 @@
 # aeroplace
 
-Places floating windows for AeroSpace on macOS with the Accessibility API, because AeroSpace does not.
+Places windows for AeroSpace on macOS. A Swift host gives Lua scripts the `aerospace` CLI, the Accessibility API and the display frames.
 
 ## Layout
 
+- `Sources/aeroplace/main.swift` — passes the arguments to `LuaHost`
 - `Sources/aeroplace/LuaHost.swift` — boots Lua, finds the scripts, runs `main.lua`, maps its result to the exit code
 - `Sources/aeroplace/Primitives.swift` — the global `aeroplace` table that the scripts call
 - `Sources/aeroplace/Window.swift` — Accessibility reads and writes
 - `Sources/aeroplace/Screen.swift` — display frames, top-left origin
-- `Sources/CLua/` — Lua 5.5.1 from lua.org, unchanged
+- `Sources/CLua/` — Lua 5.5.1 library sources from lua.org, public headers in `include/`
 - `lua/main.lua` — verb dispatch and usage
 - `lua/verbs.lua` — `center`, `cycle`, `stages`, `layout`
 - `lua/aerospace.lua` — window lookup and the `outer.bottom` read
 - `lua/placement.lua` — the usable area and the size ladder
 - `lua/layout.lua` — the `layout` plan
-- `test/host.sh` — host checks; `test/main.lua` — Lua suites with stubbed primitives
+- `test/host.sh` — host checks; `test/main.lua` — Lua suites. `primitives_test` calls the real primitives and needs AeroSpace installed; the other suites stub them
 
 ## Rules
 
@@ -22,7 +23,7 @@ Places floating windows for AeroSpace on macOS with the Accessibility API, becau
 - `make check` and `AEROPLACE_LUA=lua .build/release/aeroplace stages` are the validators. Compare the ladder with the table in README.md.
 - Put logic in Lua and primitives in Swift. Add a primitive only for an API that Lua cannot reach.
 - A primitive returns `nil, message` on failure. It never raises a Lua error: Lua raises with `_longjmp`, which skips Swift cleanup. Keep `luaL_check*`, `luaL_error` and `lua_error` out of `Sources/aeroplace`.
-- Replace `Sources/CLua` only with a whole Lua release from lua.org. Check its SHA-256 against the lua.org download page.
+- Replace `Sources/CLua` only from a Lua release tarball. Check the tarball SHA-256 against the lua.org download page. Copy `src/` without `lua.c`, `luac.c`, `lua.hpp` and the `Makefile`, and put `lua.h`, `luaconf.h`, `lualib.h` and `lauxlib.h` in `include/`.
 - Keep the Accessibility path free of Apple Events. System Events costs about 65 ms per call; a direct Accessibility call costs about 0.6 ms.
 - AppKit reports the visible frame from the bottom left of the primary display. The Accessibility API measures from the top left. `Screen.visibleFrame` flips Y once.
 - Do not add a dependency for the `outer.bottom` read. A line match is enough.
