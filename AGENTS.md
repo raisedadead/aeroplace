@@ -15,7 +15,9 @@ Places windows for AeroSpace on macOS. A Swift host gives Lua scripts the `aeros
 - `lua/aerospace.lua` — window lookup and the `outer.bottom` read
 - `lua/placement.lua` — the usable area and the size ladder
 - `lua/layout.lua` — the `layout` plan
-- `test/host.sh` — host checks; `test/main.lua` — Lua suites. `primitives_test` calls the real primitives and needs AeroSpace installed; the other suites stub them
+- `test/host.sh` — host and CLI checks; `test/main.lua` — Lua suites. `primitives_test` calls the real primitives; the other suites stub them
+- `test/bin/aerospace` — a fake `aerospace` that `make check` puts first on `PATH`. The checks need no AeroSpace install
+- `.github/workflows/check.yml` — `make check` on macOS for each push to `main` and each pull request
 
 ## Rules
 
@@ -37,7 +39,7 @@ Send each window task to the `aerospace` CLI first. Write a Lua verb when a task
 - **Place a window that becomes floating.** `layout floating` restores the last floating size and keeps the current position ([LayoutCommand:79][layout-floating]). Put `exec-and-forget <path>/aeroplace center` after `layout floating` in the same binding or rule.
 - **Keep a floating window clear of a bar.** Gaps apply to tiled windows only. AeroSpace moves a floating window only when the monitor under it shows another workspace, and sizes it only for `fullscreen` ([layoutRecursive:72][floating-layout]). Subtract `outer.bottom` from the visible frame, as `placement.usable` does.
 - **Read a frame.** `list-windows` and `list-monitors` print no position or size ([format variables][format-vars]). Read a window size with `aeroplace.size` and a display frame with `aeroplace.screen`. Select the display with `%{monitor-appkit-nsscreen-screens-id}`.
-- **Find the Accessibility window.** AeroSpace prints `%{window-id}` but no Accessibility element. Match the element on `%{app-pid}` and `%{window-title}`, as `aeroplace.window` does.
+- **Find the Accessibility window.** AeroSpace prints `%{window-id}` but no Accessibility element. The window id is the CGWindowID that `_AXUIElementGetWindow` returns. Match the element on `%{app-pid}` and `%{window-id}` with `aeroplace.window(pid, id)`.
 
 ### Accordion root
 
@@ -54,6 +56,7 @@ The links point to AeroSpace commit `d56e163` (0.21.3-Beta). After an AeroSpace 
 ## Conventions
 
 - ISC licence. `main` is the trunk. Work on `feat/` branches.
+- Keep the version in `lua/main.lua`. Tag a release `v<version>`, then update the formula in `raisedadead/homebrew-tap`.
 - Commit subjects use `type(scope): subject`, 50 characters, imperative.
 
 [flatten]: https://github.com/nikitabobko/AeroSpace/blob/d56e1637c3a1ed660d0cadd7534e94fb3218d1c3/Sources/AppBundle/tree/normalizeContainers.swift#L12

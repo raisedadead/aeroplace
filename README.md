@@ -9,6 +9,7 @@ aeroplace center              # centre the window, keep its size
 aeroplace cycle               # step to the next size, centred
 aeroplace stages              # print the size ladder, touch no window
 aeroplace layout [workspace]  # focused window left, the others in one column
+aeroplace --version
 ```
 
 `center` and `cycle` read the window from AeroSpace, then write the position and the size directly. `stages` needs no window and no Accessibility permission, so you can use it to check the ladder on any display.
@@ -41,22 +42,34 @@ On a 2560 by 1366 usable area:
 
 ## Install
 
+aeroplace needs macOS 13 or later and [AeroSpace](https://github.com/nikitabobko/AeroSpace). It finds the `aerospace` CLI on `PATH`, then in `/opt/homebrew/bin` and `/usr/local/bin`.
+
+With Homebrew, which builds aeroplace from source:
+
+```sh
+brew install raisedadead/tap/aeroplace
+```
+
+From a clone, with Swift 6 or later:
+
 ```sh
 make install          # binary to ~/.local/bin, scripts to ~/.local/share/aeroplace
 make install PREFIX=/usr/local
 make check            # host checks, Lua tests, and the ladder
 ```
 
-Grant Accessibility permission to `aeroplace` in System Settings, under Privacy and Security. Without it, `center` and `cycle` exit 1 with a message.
+### Accessibility permission
+
+`center` and `cycle` need Accessibility permission. macOS checks the permission of the app that starts `aeroplace`. From a key binding, that app is AeroSpace, which already has the permission. From a shell, grant the permission to your terminal app in System Settings, under Privacy & Security, then Accessibility. Without it, `center` and `cycle` exit 1 with a message.
 
 ## Use from AeroSpace
 
-Give an absolute path. AeroSpace starts from the GUI and does not read your shell profile.
+Give an absolute path. AeroSpace starts from the GUI and does not read your shell profile. Use `/opt/homebrew/bin/aeroplace` for Homebrew on Apple silicon, `/usr/local/bin/aeroplace` for Homebrew on Intel, or the full path of `~/.local/bin/aeroplace` for `make install`.
 
 ```toml
-ctrl-alt-c = ['layout floating', 'exec-and-forget /Users/you/.local/bin/aeroplace center']
-ctrl-alt-r = ['layout floating', 'exec-and-forget /Users/you/.local/bin/aeroplace cycle']
-ctrl-alt-w = 'exec-and-forget /Users/you/.local/bin/aeroplace layout'
+ctrl-alt-c = ['layout floating', 'exec-and-forget /opt/homebrew/bin/aeroplace center']
+ctrl-alt-r = ['layout floating', 'exec-and-forget /opt/homebrew/bin/aeroplace cycle']
+ctrl-alt-w = 'exec-and-forget /opt/homebrew/bin/aeroplace layout'
 ```
 
 ## Why a binary
