@@ -1,6 +1,6 @@
 local M = {}
 
-M.stages = 4
+M.fractions = {1 / 4, 2 / 4, 3 / 4}
 M.width_exponent = 2 / 3
 M.height_exponent = 1 / 3
 
@@ -24,16 +24,16 @@ end
 
 function M.next_stage(area, height)
   local heights = {}
-  for stage = 1, M.stages do
-    heights[stage] = M.round(area.height * (stage / M.stages) ^ M.height_exponent)
+  for stage, fraction in ipairs(M.fractions) do
+    heights[stage] = M.round(area.height * fraction ^ M.height_exponent)
   end
   local nearest = 1
   local function distance(stage) return math.abs(heights[stage] - height) end
-  for stage = 2, M.stages do
+  for stage = 2, #M.fractions do
     if distance(stage) < distance(nearest) then nearest = stage end
   end
-  local next = nearest % M.stages + 1
-  return M.round(area.width * (next / M.stages) ^ M.width_exponent), heights[next]
+  local next = nearest % #M.fractions + 1
+  return M.round(area.width * M.fractions[next] ^ M.width_exponent), heights[next]
 end
 
 return M

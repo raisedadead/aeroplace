@@ -60,7 +60,7 @@ function M.stages(write)
   local area = usable_area(0)
   write('usable ' .. size(area.width, area.height))
   local stage_height = area.height
-  for stage = 1, placement.stages do
+  for stage = 1, #placement.fractions do
     local stage_width
     stage_width, stage_height = placement.next_stage(area, stage_height)
     write(stage .. ' ' .. size(stage_width, stage_height))

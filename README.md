@@ -19,9 +19,9 @@ The verbs are Lua scripts. The binary embeds Lua 5.5.1 and gives the scripts the
 
 ### The size ladder
 
-`cycle` steps through four sizes, then wraps. Each step is a quarter more of the usable area than the last: 25, 50, 75 and 100 percent.
+`cycle` steps through three sizes, then wraps. Each step is a quarter more of the usable area than the last: 25, 50 and 75 percent.
 
-The shape changes with the size. Width scales by the area fraction to the power of two thirds, height by the power of one third. The exponents add to 1, which keeps the area exact. A small window is therefore much closer to square than the display is, and the largest window matches the shape of the display.
+The shape changes with the size. Width scales by the area fraction to the power of two thirds, height by the power of one third. The exponents add to 1, which keeps the area exact. A small window is therefore much closer to square than the display is. Each larger step is closer to the shape of the display.
 
 Move the two exponents apart for a taller small window, together for a squarer one. They must always add to 1.
 
@@ -32,9 +32,8 @@ On a 2560 by 1366 usable area:
 | 1     | 1016 × 861  | 1.18   |
 | 2     | 1613 × 1084 | 1.49   |
 | 3     | 2113 × 1241 | 1.70   |
-| 4     | 2560 × 1366 | 1.87   |
 
-`stages`, `width_exponent` and `height_exponent` in `lua/placement.lua` control the ladder.
+`fractions`, `width_exponent` and `height_exponent` in `lua/placement.lua` control the ladder.
 
 ### Usable area
 
