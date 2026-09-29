@@ -1,7 +1,18 @@
 local aerospace = require('aerospace')
+local layout = require('layout')
 local placement = require('placement')
 
 local M = {}
+
+local function read(...)
+  local output, message = aeroplace.aerospace(...)
+  if not output then error(message, 0) end
+  return output
+end
+
+local function execute(command)
+  if not os.execute(command) then error('command failed: ' .. command, 0) end
+end
 
 local function size(width, height)
   return string.format('%dx%d', placement.truncate(width), placement.truncate(height))
@@ -50,6 +61,39 @@ function M.stages(write)
     stage_width, stage_height = placement.next_stage(area, stage_height)
     write(stage .. ' ' .. size(stage_width, stage_height))
   end
+  return 0
+end
+
+function M.layout(workspace)
+  local focused = aeroplace.aerospace('list-windows', '--focused',
+    '--format', '%{window-id}|%{workspace}')
+  local focused_id, focused_workspace = (focused or ''):match('^(%d+)|(.+)$')
+  workspace = workspace or focused_workspace or read('list-workspaces', '--focused')
+  local primary = focused_workspace == workspace and focused_id or ''
+  local state = (os.getenv('XDG_STATE_HOME') or (assert(os.getenv('HOME')) .. '/.local/state'))
+    .. '/aerospace'
+  local quote = layout.quote
+  execute('/bin/mkdir -p ' .. quote(state))
+  execute(table.concat({
+    '/usr/bin/lockf -k -t 10', quote(state .. '/layout.lock'), quote(aeroplace.executable),
+    'layout --locked', quote(workspace), quote(primary),
+  }, ' '))
+  return 0
+end
+
+function M.layout_locked(workspace, primary)
+  local rows = read('list-windows', '--workspace', workspace,
+    '--format', '%{window-id}|%{window-layout}')
+  local ids, present = {}, {}
+  for id, window_layout in rows:gmatch('(%d+)|([^\n]+)') do
+    if layout.includes(window_layout) then
+      ids[#ids + 1] = id
+      present[id] = true
+    end
+  end
+  if #ids == 0 then return 0 end
+  local plan = layout.plan(ids, present[primary] and primary or ids[1], workspace)
+  read('eval', table.concat(plan, ' && '))
   return 0
 end
 

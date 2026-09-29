@@ -1,6 +1,13 @@
 local verbs = require('verbs')
 
-local verb = ...
-if select('#', ...) == 1 and verbs[verb] then return verbs[verb]() end
-io.stderr:write('usage: aeroplace <center|cycle|stages>\n')
+local verb, first, second, third = ...
+local count = select('#', ...)
+if count == 1 and (verb == 'center' or verb == 'cycle' or verb == 'stages') then
+  return verbs[verb]()
+end
+if verb == 'layout' and count <= 2 then return verbs.layout(first) end
+if verb == 'layout' and count == 4 and first == '--locked' then
+  return verbs.layout_locked(second, third)
+end
+io.stderr:write('usage: aeroplace <center|cycle|stages|layout [workspace]>\n')
 return 2
