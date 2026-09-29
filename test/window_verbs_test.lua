@@ -1,3 +1,4 @@
+local placement = require('placement')
 local stub = require('stub')
 local verbs = require('verbs')
 
@@ -50,6 +51,21 @@ local function run(verb, options)
   return result, table.concat(calls, '; ')
 end
 
+local area = {x = -2560, y = 0, width = 2560, height = 1366}
+
+local function clipping_desktop(width, height)
+  local api = desktop({focused = '42'})
+  local frame = {width = width, height = height}
+  frame.x, frame.y = placement.centre(area, width, height)
+  api.size = function() return frame.width, frame.height end
+  api.set_position = function(_, x, y) frame.x, frame.y = x, y end
+  api.set_size = function(_, new_width, new_height)
+    frame.width = math.min(new_width, area.x + area.width - frame.x)
+    frame.height = math.min(new_height, 1410 - frame.y)
+  end
+  return api, frame
+end
+
 return {
   {'center moves the focused window to the centre of its screen', function()
     local result, calls = run('center', {focused = '42'})
@@ -81,11 +97,21 @@ return {
     local ok, message = pcall(run, 'center', {focused = '42', trusted = false})
     assert(not ok and message:match('Accessibility'), message)
   end},
-  {'cycle sets the next size, reads it back, then centres', function()
+  {'cycle moves a growing window first, then sets the size and centres the accepted size', function()
     local _, calls = run('cycle', {focused = '42', sizes = {{1000, 800}, {1600, 1084}}})
     local expected = 'window 200 Title | with pipe ; size handle; screen 2; '
-      .. 'set_size handle 1613 1084; size handle; set_position handle -2080 141'
+      .. 'set_position handle -2087 141; set_size handle 1613 1084; size handle; '
+      .. 'set_position handle -2080 141'
     assert(calls == expected, calls)
+  end},
+  {'cycle keeps every step on the ladder when the screen edge clips a resize', function()
+    local api, frame = clipping_desktop(1016, 861)
+    for _, size in ipairs({{1613, 1084}, {2113, 1241}, {2560, 1366}, {1016, 861}}) do
+      stub.with(api, function() assert(verbs.cycle() == 0) end)
+      local x, y = placement.centre(area, size[1], size[2])
+      local got = table.concat({frame.x, frame.y, frame.width, frame.height}, ' ')
+      assert(got == table.concat({x, y, size[1], size[2]}, ' '), got)
+    end
   end},
   {'cycle centres the old size when the read-back fails', function()
     local _, calls = run('cycle', {focused = '42', sizes = {{1000, 800}}})
