@@ -3,7 +3,7 @@ local stub = require('stub')
 local verbs = require('verbs')
 
 local config = stub.file('outer.bottom = 44\n')
-local rows = '41|100|1|Other|\n42|200|2|Title | with pipe |'
+local rows = '41|100|1\n42|200|2'
 
 local function desktop(options)
   options = options or {}
@@ -23,8 +23,8 @@ local function desktop(options)
       error('unexpected aerospace ' .. command, 0)
     end,
     sleep = function(seconds) record('sleep', seconds) end,
-    window = function(pid, title)
-      record('window', pid, title)
+    window = function(pid, id)
+      record('window', pid, id)
       return 'handle'
     end,
     size = function(handle)
@@ -71,7 +71,7 @@ return {
   {'center moves the focused window to the centre of its screen', function()
     local result, calls = run('center', {focused = '42'})
     assert(result == 0)
-    local expected = 'window 200 Title | with pipe ; size handle; screen 2; '
+    local expected = 'window 200 42; size handle; screen 2; '
       .. 'set_position handle -1780 283'
     assert(calls == expected, calls)
   end},
@@ -100,7 +100,7 @@ return {
   end},
   {'cycle moves a growing window before it sets the size', function()
     local _, calls = run('cycle', {focused = '42', sizes = {{1000, 800}, {1600, 1084}}})
-    local expected = 'window 200 Title | with pipe ; size handle; screen 2; '
+    local expected = 'window 200 42; size handle; screen 2; '
       .. 'set_position handle -2087 141; set_size handle 1613 1084; size handle; '
       .. 'set_position handle -2080 141'
     assert(calls == expected, calls)

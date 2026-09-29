@@ -30,8 +30,9 @@ return {
     assert(type(aeroplace.trusted()) == 'boolean')
   end},
   {'window rejects wrong argument types', function()
-    fails(aeroplace.window('pid', 'title'))
-    fails(aeroplace.window(1, {}))
+    fails(aeroplace.window('pid', 1))
+    fails(aeroplace.window(1, 'title'))
+    fails(aeroplace.window(1, 1.5))
   end},
   {'size and writes reject a missing handle', function()
     fails(aeroplace.size('handle'))
