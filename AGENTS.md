@@ -53,10 +53,20 @@ Bind `move` with `--boundaries-action stop`. Restore the root with `layout --roo
 
 The links point to AeroSpace commit `d56e163` (0.21.3-Beta). After an AeroSpace upgrade, read each linked file at the new commit and update this section.
 
+## Release
+
+aeroplace uses semantic versions. Homebrew builds it from a git tag.
+
+1. Set `version` in `lua/main.lua` and the expected `--version` output in `test/host.sh`.
+1. Run `make check`.
+1. Commit as `chore(release): <version>` on `main`.
+1. Add an annotated tag: `git tag -a v<version> -m 'aeroplace <version>'`.
+1. The operator pushes `main` and the tag. Push the tag before the formula changes.
+1. Update `Formula/aeroplace.rb` in `raisedadead/homebrew-tap`. Its `README.md` gives the steps.
+
 ## Conventions
 
 - ISC licence. `main` is the trunk. Work on `feat/` branches.
-- Keep the version in `lua/main.lua`. Tag a release `v<version>`, then update the formula in `raisedadead/homebrew-tap`.
 - Commit subjects use `type(scope): subject`, 50 characters, imperative.
 
 [flatten]: https://github.com/nikitabobko/AeroSpace/blob/d56e1637c3a1ed660d0cadd7534e94fb3218d1c3/Sources/AppBundle/tree/normalizeContainers.swift#L12
