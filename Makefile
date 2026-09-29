@@ -1,10 +1,13 @@
 PREFIX ?= $(HOME)/.local
 BINARY := aeroplace
 
-.PHONY: build install clean
+.PHONY: build check install clean
 
 build:
 	swift build -c release
+
+check: build
+	bash test/host.sh .build/release/$(BINARY)
 
 install: build
 	install -d $(PREFIX)/bin
