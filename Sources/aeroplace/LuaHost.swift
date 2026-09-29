@@ -6,7 +6,8 @@ enum LuaHost {
         guard let executable = Bundle.main.executableURL?.resolvingSymlinksInPath().path else {
             return failure("cannot resolve the executable path")
         }
-        let directory = ProcessInfo.processInfo.environment["AEROPLACE_LUA"]
+        let override = ProcessInfo.processInfo.environment["AEROPLACE_LUA"]
+        let directory = override.flatMap { $0.isEmpty ? nil : $0 }
             ?? URL(fileURLWithPath: executable)
                 .deletingLastPathComponent()
                 .appendingPathComponent("../share/aeroplace")
