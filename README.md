@@ -10,6 +10,7 @@ aeroplace cycle               # step to the next size, centred
 aeroplace stages              # print the size ladder, touch no window
 aeroplace layout [workspace]  # focused window left, the others in one column
 aeroplace --version
+aeroplace --help
 ```
 
 `center` and `cycle` read the window from AeroSpace, then write the position and the size directly. `stages` needs no window and no Accessibility permission, so you can use it to check the ladder on any display.
