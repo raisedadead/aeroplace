@@ -117,7 +117,7 @@ return {
   end},
   {'cycle keeps every step on the ladder when the screen edge clips a resize', function()
     local api, frame = clipping_desktop(1016, 861)
-    for _, size in ipairs({{1613, 1084}, {2113, 1241}, {2560, 1366}, {1016, 861}}) do
+    for _, size in ipairs({{1613, 1084}, {2113, 1241}, {1016, 861}}) do
       stub.with(api, function() assert(verbs.cycle() == 0) end)
       local x, y = placement.centre(area, size[1], size[2])
       local got = table.concat({frame.x, frame.y, frame.width, frame.height}, ' ')

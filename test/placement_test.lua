@@ -22,10 +22,10 @@ return {
     local x, y = placement.centre({x = -1921, y = 0, width = 1920, height = 1000}, 1001, 500)
     assert(x == -1462 and y == 250, x .. ',' .. y)
   end},
-  {'the ladder matches the README table', function()
-    local expected = {{1016, 861}, {1613, 1084}, {2113, 1241}, {2560, 1366}}
+  {'the ladder matches the README table and wraps after the third step', function()
+    local expected = {{1016, 861}, {1613, 1084}, {2113, 1241}, {1016, 861}}
     local height = display.height
-    for stage = 1, placement.stages do
+    for stage = 1, #expected do
       local width
       width, height = placement.next_stage(display, height)
       assert(width == expected[stage][1] and height == expected[stage][2],

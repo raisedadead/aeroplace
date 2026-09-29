@@ -40,7 +40,7 @@ return {
     stub.with(display(), function()
       assert(verbs.stages(function(line) lines[#lines + 1] = line end) == 0)
     end)
-    local expected = {'usable 2560x1366', '1 1016x861', '2 1613x1084', '3 2113x1241', '4 2560x1366'}
+    local expected = {'usable 2560x1366', '1 1016x861', '2 1613x1084', '3 2113x1241'}
     assert(table.concat(lines, '|') == table.concat(expected, '|'), table.concat(lines, '|'))
   end},
 }
