@@ -25,6 +25,7 @@ local function desktop(options)
     sleep = function(seconds) record('sleep', seconds) end,
     window = function(pid, id)
       record('window', pid, id)
+      if options.window_error then return nil, options.window_error end
       return 'handle'
     end,
     size = function(handle)
@@ -93,6 +94,10 @@ return {
   {'center does nothing without a focused window', function()
     local result, calls = run('center', {})
     assert(result == 0 and calls == '', calls)
+  end},
+  {'center reports a window that Accessibility cannot find', function()
+    local ok, message = pcall(run, 'center', {focused = '42', window_error = 'no window 42'})
+    assert(not ok and message == 'no window 42', message)
   end},
   {'center needs Accessibility permission', function()
     local ok, message = pcall(run, 'center', {focused = '42', trusted = false})
