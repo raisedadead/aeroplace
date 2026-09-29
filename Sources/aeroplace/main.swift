@@ -3,7 +3,6 @@ import AppKit
 enum Mode: String {
     case center
     case cycle
-    case stages
 }
 
 func fail(_ message: String, _ code: Int32) -> Never {
@@ -24,18 +23,6 @@ func usableArea(screenIndex: Int) -> UsableArea {
     )
 }
 
-if mode == .stages {
-    let area = usableArea(screenIndex: 0)
-    print("usable \(Int(area.size.width))x\(Int(area.size.height))")
-    var height = area.size.height
-    for stage in 1...UsableArea.areaStages {
-        let next = area.stageAfter(height: height)
-        print("\(stage) \(Int(next.width))x\(Int(next.height))")
-        height = next.height
-    }
-    exit(0)
-}
-
 guard AXIsProcessTrusted() else { fail("aeroplace needs Accessibility permission", 1) }
 
 guard let row = AeroSpace.focusedWindowRow(),
@@ -51,6 +38,4 @@ case .center:
 case .cycle:
     window.setSize(area.stageAfter(height: current.height))
     window.setPosition(area.centre(for: window.size() ?? current))
-case .stages:
-    break
 }
