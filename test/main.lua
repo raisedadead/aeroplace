@@ -1,14 +1,23 @@
 package.path = 'lua/?.lua;' .. package.path
 
 local failures = 0
-for _, suite in ipairs({'primitives'}) do
-  for _, case in ipairs(require(suite)) do
-    local ok, message = pcall(case[2])
-    if ok then
-      print('PASS: ' .. suite .. ': ' .. case[1])
-    else
-      failures = failures + 1
-      print('FAIL: ' .. suite .. ': ' .. case[1] .. ': ' .. tostring(message))
+local function report(ok, name, message)
+  if ok then
+    print('PASS: ' .. name)
+  else
+    failures = failures + 1
+    print('FAIL: ' .. name .. ': ' .. tostring(message))
+  end
+end
+
+for _, suite in ipairs({'primitives_test', 'placement_test', 'verbs_test'}) do
+  local loaded, cases = pcall(require, suite)
+  if not loaded then
+    report(false, suite, cases)
+  else
+    for _, case in ipairs(cases) do
+      local ok, message = pcall(case[2])
+      report(ok, suite .. ': ' .. case[1], message)
     end
   end
 end
