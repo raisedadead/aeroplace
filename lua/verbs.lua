@@ -27,7 +27,7 @@ end
 local function focused_window()
   if not aeroplace.trusted() then error('needs Accessibility permission', 0) end
   local row = aerospace.focused_row()
-  local handle = row and aeroplace.window(row.pid, row.title)
+  local handle = row and aeroplace.window(row.pid, row.id)
   if not handle then return nil end
   local width, height = aeroplace.size(handle)
   if not width then return nil end

@@ -9,7 +9,7 @@ function M.config_path()
   return base .. '/aerospace/aerospace.toml'
 end
 
-local row_format = '%{window-id}|%{app-pid}|%{monitor-appkit-nsscreen-screens-id}|%{window-title}|'
+local row_format = '%{window-id}|%{app-pid}|%{monitor-appkit-nsscreen-screens-id}'
 
 function M.focused_window_id()
   local id = os.getenv('AEROSPACE_WINDOW_ID')
@@ -22,10 +22,10 @@ end
 function M.row(id)
   local output = aeroplace.aerospace('list-windows', '--all', '--format', row_format)
   for line in (output or ''):gmatch('[^\n]+') do
-    local window_id, pid, screen, title = line:match('^([^|]*)|([^|]*)|([^|]*)|(.*)|$')
+    local window_id, pid, screen = line:match('^([^|]*)|([^|]*)|([^|]*)$')
     if window_id == id and pid:match('^%d+$') then
       local index = screen:match('^%-?%d+$') and tonumber(screen) or 0
-      return {pid = tonumber(pid), screen = index, title = title}
+      return {id = tonumber(id), pid = tonumber(pid), screen = index}
     end
   end
 end

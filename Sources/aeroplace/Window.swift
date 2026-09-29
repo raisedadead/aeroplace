@@ -1,16 +1,17 @@
 import ApplicationServices
 import Foundation
 
+@_silgen_name("_AXUIElementGetWindow")
+private func axWindowId(_ element: AXUIElement, _ id: UnsafeMutablePointer<CGWindowID>) -> AXError
+
 struct AXWindow {
     let element: AXUIElement
 
-    static func match(pid: pid_t, title: String, attempts: Int = 20, interval: TimeInterval = 0.05) -> AXWindow? {
+    static func match(
+        pid: pid_t, id: CGWindowID, attempts: Int = 20, interval: TimeInterval = 0.05
+    ) -> AXWindow? {
         for _ in 0..<attempts {
-            let windows = all(pid: pid)
-            if !windows.isEmpty {
-                let named = windows.filter { $0.title() == title }
-                return named.count == 1 ? named[0] : windows[0]
-            }
+            if let window = all(pid: pid).first(where: { $0.id() == id }) { return window }
             Thread.sleep(forTimeInterval: interval)
         }
         return nil
@@ -25,11 +26,9 @@ struct AXWindow {
         return elements.map { AXWindow(element: $0) }
     }
 
-    func title() -> String? {
-        var value: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(element, kAXTitleAttribute as CFString, &value) == .success
-        else { return nil }
-        return value as? String
+    func id() -> CGWindowID? {
+        var id: CGWindowID = 0
+        return axWindowId(element, &id) == .success ? id : nil
     }
 
     func size() -> CGSize? {
