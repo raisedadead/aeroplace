@@ -8,6 +8,7 @@ build:
 
 check: build
 	bash test/host.sh .build/release/$(BINARY)
+	AEROPLACE_LUA=$(CURDIR)/test .build/release/$(BINARY)
 
 install: build
 	install -d $(PREFIX)/bin
