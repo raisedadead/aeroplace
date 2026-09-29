@@ -1,0 +1,7 @@
+#!/bin/bash
+if [[ ${1:-} == --version ]]; then
+  printf 'aerospace CLI client version fake\n'
+  exit 0
+fi
+printf 'fake aerospace: %s is not supported\n' "${1:-}" >&2
+exit 2
