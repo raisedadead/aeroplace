@@ -42,6 +42,9 @@ report missing-scripts $? 1 "$output" 'main.lua'
 output=$(env -u AEROPLACE_LUA "$binary" run 2>&1)
 report default-scripts-dir $? 1 "$output" 'share/aeroplace/main.lua'
 
+output=$(AEROPLACE_LUA= "$binary" run 2>&1)
+report empty-override-uses-default $? 1 "$output" 'share/aeroplace/main.lua'
+
 mkdir -p "$fixture/lookup"
 printf '%s\n' 'io.write(assert(aeroplace.aerospace("--version")))' >"$fixture/lookup/main.lua"
 fake_path="$(dirname "$0")/bin:/usr/bin:/bin"
