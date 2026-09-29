@@ -25,10 +25,17 @@ enum Primitives {
     }
 }
 
-private let aerospaceBinary = "/opt/homebrew/bin/aerospace"
+private let aerospaceBinary: String? = {
+    let path = ProcessInfo.processInfo.environment["PATH"] ?? ""
+    let directories = path.split(separator: ":").map(String.init) + ["/opt/homebrew/bin", "/usr/local/bin"]
+    return directories.map { $0 + "/aerospace" }.first { FileManager.default.isExecutableFile(atPath: $0) }
+}()
 
 private func aerospace(_ state: OpaquePointer?) -> Int32 {
     guard let state else { return 0 }
+    guard let aerospaceBinary else {
+        return failure(state, "aerospace: not found on PATH, in /opt/homebrew/bin or in /usr/local/bin")
+    }
     var arguments: [String] = []
     for index in stride(from: 1, through: lua_gettop(state), by: 1) {
         guard lua_isstring(state, index) != 0, let pointer = lua_tolstring(state, index, nil) else {
