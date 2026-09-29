@@ -97,7 +97,7 @@ return {
     local ok, message = pcall(run, 'center', {focused = '42', trusted = false})
     assert(not ok and message:match('Accessibility'), message)
   end},
-  {'cycle moves a growing window first, then sets the size and centres the accepted size', function()
+  {'cycle moves a growing window before it sets the size', function()
     local _, calls = run('cycle', {focused = '42', sizes = {{1000, 800}, {1600, 1084}}})
     local expected = 'window 200 Title | with pipe ; size handle; screen 2; '
       .. 'set_position handle -2087 141; set_size handle 1613 1084; size handle; '

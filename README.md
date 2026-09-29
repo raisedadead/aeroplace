@@ -66,7 +66,7 @@ The earlier version of this tool was a shell script driving JavaScript for Autom
 
 Direct Accessibility calls remove that overhead for reads, which cost about 0.6 ms. Writes are not symmetric. On a measured sample, a position write costs under 1 ms, but a size write costs 7 to 25 ms, because the application handles the resize on its own run loop.
 
-That asymmetry sets the order. `cycle` writes the size first, reads back what the application accepted, then centres for the real size. The window therefore holds an intermediate shape for about 5 ms rather than about 18 ms, which is under one frame at 60 Hz instead of over one. Reading the accepted size also removes a third write, because an application that refuses a size is centred correctly the first time.
+That asymmetry sets the order. When the window shrinks, `cycle` writes the size first, reads back what the application accepted, then centres for the real size. The window therefore holds an intermediate shape for about 5 ms rather than about 18 ms, which is under one frame at 60 Hz instead of over one. When the window grows, `cycle` first moves it to the centre for the new size. The application clips a size that runs past the screen edge, so a size written at the old position can come back smaller than the ladder step. In both cases, the last write centres the size that the application accepted.
 
 macOS gives no window animation to a third-party tool, so this is one snap, not a transition.
 

@@ -44,8 +44,12 @@ end
 function M.cycle()
   local window = focused_window()
   if not window then return 0 end
-  aeroplace.set_size(window.handle, placement.next_stage(window.area, window.height))
-  local width, height = aeroplace.size(window.handle)
+  local width, height = placement.next_stage(window.area, window.height)
+  if width > window.width or height > window.height then
+    aeroplace.set_position(window.handle, placement.centre(window.area, width, height))
+  end
+  aeroplace.set_size(window.handle, width, height)
+  width, height = aeroplace.size(window.handle)
   if not width then width, height = window.width, window.height end
   aeroplace.set_position(window.handle, placement.centre(window.area, width, height))
   return 0
