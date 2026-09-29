@@ -10,7 +10,11 @@ local function report(ok, name, message)
   end
 end
 
-for _, suite in ipairs({'primitives_test', 'placement_test', 'verbs_test', 'window_verbs_test'}) do
+local suites = {
+  'primitives_test', 'placement_test', 'verbs_test',
+  'window_verbs_test', 'layout_test', 'layout_verbs_test',
+}
+for _, suite in ipairs(suites) do
   local loaded, cases = pcall(require, suite)
   if not loaded then
     report(false, suite, cases)
